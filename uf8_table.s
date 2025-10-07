@@ -1,9 +1,20 @@
-.data
-    table: .word 16,48,112,240,496,1008,2032,4048,8176,16368,32752,65520,131056,262128,524272
-    pass_test: .string "All test passed"
-    fail_test: .string "test fail"
-.text
-main:
+table:
+	.word 16,48,112,240,496,1008,2032,4048,8176,16368,32752,65520,131056,262128,524272
+	.section .rodata
+	.align 4
+
+pass_test:
+	.ascii "All test passed\n"
+	.section .text
+	.align 2
+
+fail_test: 
+	.ascii "test fail"
+	.section .text
+	.align 2
+
+	.global _start
+_start:
     li t0,0        # t0: uft8
     li t1, 255
 
@@ -24,18 +35,22 @@ main_loop:
     
     bne a0, t0, fail
     addi t0, t0,1
-    la a0, pass_test 
+    li a0, 1
+	li a2, 16
+	la a1, pass_test
     j main_loop
 
 fail:
-    la a0,pass_test
-    li a7,4
+    li a0, 1
+	la a1, fail_test
+	li a2, 10   # Fail mesg len
+    li a7, 64	# Write
     ecall
     
 end_main:
-    li a7, 4
+    li a7, 64	# Write
     ecall
-    li a7, 10
+    li a7, 93	# End
     ecall
     
 uf8_decode:
@@ -74,6 +89,7 @@ end_uf8_encode:
     or a0, a1,t0      # Store exp << 4 | Mantissa
     ret
     
+
 
 
 
